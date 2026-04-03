@@ -305,54 +305,46 @@ case "$device_code" in
 esac
 
 if [ -n "$modules_touch" ]; then
-    if [ ! -f /vendor/firmware/cs40l26.wmfw ]; then
-        echo "I:vendor_fw: Copying haptics firmware from vendor partition..." >> "$LOGF"
-        tmp_mnt="/tmp/vendor_fw_mnt"
-        mkdir -p "$tmp_mnt" /vendor/firmware
-        try_mount_vendor_fw() {
-            local blk="$1"
-            local slot_name="$2"
-            local slot_num="$3"
+    echo "I:vendor_fw: Copying haptics firmware from vendor partition..." >> "$LOGF"
+    tmp_mnt="/tmp/vendor_fw_mnt"
+    mkdir -p "$tmp_mnt" /vendor/firmware
+    try_mount_vendor_fw() {
+        local blk="$1"
+        local slot_name="$2"
+        local slot_num="$3"
 
-            if [ ! -b "$blk" ]; then
-                echo "W:vendor_fw: $blk not found, trying to map..." >> "$LOGF"
-                if ! lptools_new --slot "$slot_num" --suffix "$slot_name" --map "vendor$slot_name" ; then
-                    echo "E:vendor_fw: Failed to map vendor$slot_name" >> "$LOGF"
-                    return 1
-                fi
+        if [ ! -b "$blk" ]; then
+            echo "W:vendor_fw: $blk not found, trying to map..." >> "$LOGF"
+            if ! lptools_new --slot "$slot_num" --suffix "$slot_name" --map "vendor$slot_name" ; then
+                echo "E:vendor_fw: Failed to map vendor$slot_name" >> "$LOGF"
+                return 1
             fi
-
-            if mount -r "$blk" "$tmp_mnt" 2>>"$LOGF"; then
-                if [ -f "$tmp_mnt/firmware/cs40l26.wmfw" ]; then
-                    cp "$tmp_mnt"/firmware/* /vendor/firmware/ 2>>"$LOGF"
-                    echo "I:vendor_fw: Firmware copied from $blk" >> "$LOGF"
-                    umount "$tmp_mnt" 2>/dev/null
-                    return 0
-                fi
-                umount "$tmp_mnt" 2>/dev/null
-                echo "W:vendor_fw: No cs40l26 firmware in $blk" >> "$LOGF"
-            else
-                echo "W:vendor_fw: Cannot mount $blk" >> "$LOGF"
-            fi
-            return 1
-        }
-
-        if try_mount_vendor_fw "/dev/block/mapper/vendor${suffix}" "$suffix" "$slot"; then
-            : # success
-        elif try_mount_vendor_fw "/dev/block/mapper/vendor${unsuffix}" "$unsuffix" "$unslot"; then
-            : # success from opposite slot
-        elif [ -b /dev/block/by-name/vendor ] && mount -r /dev/block/by-name/vendor "$tmp_mnt" 2>>"$LOGF"; then
-            cp "$tmp_mnt"/firmware/cs40l26* /vendor/firmware/ 2>>"$LOGF"
-            cp "$tmp_mnt"/firmware/cl_dsp* /vendor/firmware/ 2>>"$LOGF"
-            umount "$tmp_mnt" 2>/dev/null
-            echo "I:vendor_fw: Firmware copied from /dev/block/by-name/vendor" >> "$LOGF"
-        else
-            echo "E:vendor_fw: Failed to copy firmware from any vendor slot" >> "$LOGF"
         fi
 
-        rmdir "$tmp_mnt" 2>/dev/null
-        ls /vendor/firmware/ >> "$LOGF" 2>&1
+        if mount -r "$blk" "$tmp_mnt" 2>>"$LOGF"; then
+            local _copied=0
+            cp "$tmp_mnt"/firmware/* /vendor/firmware/ 2>>"$LOGF"
+            umount "$tmp_mnt" 2>/dev/null
+        else
+            echo "W:vendor_fw: Cannot mount $blk" >> "$LOGF"
+        fi
+        return 1
+    }
+
+    if try_mount_vendor_fw "/dev/block/mapper/vendor${suffix}" "$suffix" "$slot"; then
+        : # success
+    elif try_mount_vendor_fw "/dev/block/mapper/vendor${unsuffix}" "$unsuffix" "$unslot"; then
+        : # success from opposite slot
+    elif [ -b /dev/block/by-name/vendor ] && mount -r /dev/block/by-name/vendor "$tmp_mnt" 2>>"$LOGF"; then
+        cp "$tmp_mnt"/firmware/* /vendor/firmware/ 2>>"$LOGF"
+        umount "$tmp_mnt" 2>/dev/null
+        echo "I:vendor_fw: Firmware copied from /dev/block/by-name/vendor" >> "$LOGF"
+    else
+        echo "E:vendor_fw: Failed to copy firmware from any vendor slot" >> "$LOGF"
     fi
+
+    rmdir "$tmp_mnt" 2>/dev/null
+    ls /vendor/firmware/ >> "$LOGF" 2>&1
 
     modules_touch_install
 
@@ -362,6 +354,9 @@ if [ -n "$modules_touch" ]; then
             cs40l26_pm="/sys/devices/platform/10d50000.hsi2c/i2c-0/0-0043/power/control"
             ;;
         zumapro)
+            cs40l26_pm="/sys/devices/platform/10c80000.hsi2c/i2c-0/0-0043/power/control"
+            ;;
+        laguna)
             cs40l26_pm="/sys/devices/platform/10c80000.hsi2c/i2c-0/0-0043/power/control"
             ;;
         *)

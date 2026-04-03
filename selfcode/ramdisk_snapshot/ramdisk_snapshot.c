@@ -174,14 +174,38 @@ static void dump_getprop() {
     log_print(0, "--------------------------\n");
 }
 
+static int find_ufs_platform_path(char *out_path, size_t max_len) {
+    DIR *dir = opendir("/dev/block/platform");
+    if (dir) {
+        struct dirent *ent;
+        while ((ent = readdir(dir)) != NULL) {
+            if (ent->d_name[0] == '.') continue;
+            if (strstr(ent->d_name, "ufs")) {
+                snprintf(out_path, max_len, "/dev/block/platform/%s", ent->d_name);
+                closedir(dir);
+                return 1;
+            }
+        }
+        closedir(dir);
+    }
+    /* Fallback: GS201 default */
+    snprintf(out_path, max_len, "/dev/block/platform/13200000.ufs");
+    return 0;
+}
+
 static void dump_debug_info() {
     dump_cmdline();
     dump_bootconfig();
     dump_getprop();
     log_print(0, "\n--- DUMPING TARGET DIRECTORIES ---\n");
-    dump_dir_contents("/dev/block/platform/13200000.ufs/");
+    char ufs_path[MAX_PATH];
+    if (!find_ufs_platform_path(ufs_path, sizeof(ufs_path))) {
+        log_print(0, "[SNAPSHOT] Предупреждение: UFS не найден в /dev/block/platform/, используем fallback: %s\n", ufs_path);
+    }
+    dump_dir_contents(ufs_path);
     log_print(0, "----------------------------------\n\n");
 }
+
 
 /* Ensure parent directory of a given path exists */
 static void ensure_parent(const char *path) {
