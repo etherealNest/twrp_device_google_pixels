@@ -52,14 +52,14 @@ jobs:
         if: inputs.artifact_orangefox
         run: |
           mkdir $GITHUB_WORKSPACE/artifact
-          zip -r -9 artifact/apelsin.zip $GITHUB_WORKSPACE/fox_14.1/*
+          tar -czf $GITHUB_WORKSPACE/artifact/apelsin.tar.gz -C $GITHUB_WORKSPACE fox_14.1/*
       
       - name: Upload Source as Artifact
         if: inputs.artifact_orangefox
         uses: actions/upload-artifact@v7.0.0
         with:
           name: orange_fox
-          path: ${{ github.workspace }}/artifact/apelsin.zip
+          path: ${{ github.workspace }}/artifact/apelsin.tar.gz
           retention-days: 3          
 
       - name: Checkout
