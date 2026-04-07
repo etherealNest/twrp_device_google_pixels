@@ -9,6 +9,10 @@ on:
         type: boolean
         description: Загрузить исходный код OrangeFox как артефакт?
         default: true
+      free_space:
+        type: boolean
+        description: Запустить очистку ВМ?
+        default: true
 
 jobs:
   build:
@@ -17,6 +21,7 @@ jobs:
 
     steps:
       - name: Free Disk Space (Ubuntu)
+
         uses: jlumbroso/free-disk-space@v1.3.1
         with:
           android: true
@@ -26,6 +31,13 @@ jobs:
           docker-images: true
           tool-cache: false
           swap-storage: true
+
+      - name: Install repo
+        run: |
+          mkdir -p "$HOME/bin"
+          curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo -o "$HOME/bin/repo"
+          chmod +x "$HOME/bin/repo"
+          echo "$HOME/bin" >> "$GITHUB_PATH"
 
       - name: Clone OrangeFox Source
         run: |
