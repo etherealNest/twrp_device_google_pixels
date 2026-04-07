@@ -9,6 +9,10 @@ on:
         type: boolean
         description: Загрузить исходный код OrangeFox как артефакт?
         default: true
+      free_space:
+        type: boolean
+        description: Запустить очистку ВМ?
+        default: true
 
 jobs:
   build:
@@ -17,22 +21,24 @@ jobs:
 
     steps:
       - name: Free Disk Space (Ubuntu)
+
         uses: jlumbroso/free-disk-space@v1.3.1
+        if: inputs.free_space
         with:
-          # Remove Android runtime
-          android: # optional, default is true
-          # Remove .NET runtime
-          dotnet: # optional, default is true
-          # Remove Haskell runtime
-          haskell: # optional, default is true
-          # Remove large packages
-          large-packages: # optional, default is true
-          # Remove Docker images
-          docker-images: # optional, default is true
-          # Remove image tool cache
-          tool-cache: # optional, default is false
-          # Remove swap storage
-          swap-storage: # optional, default is true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          tool-cache: false
+          swap-storage: true
+
+      - name: Install repo
+        run: |
+          mkdir -p "$HOME/bin"
+          curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo -o "$HOME/bin/repo"
+          chmod +x "$HOME/bin/repo"
+          echo "$HOME/bin" >> "$GITHUB_PATH"
 
       - name: Clone OrangeFox Source
         run: |
@@ -70,3 +76,5 @@ jobs:
       - name: Debbug VS Code
         if: always() && inputs.debug
         uses: fawazahmed0/action-debug-vscode@main
+
+
