@@ -72,6 +72,17 @@ jobs:
           cd $GITHUB_WORKSPACE/fox_14.1/device/google/pixels
           chmod +x ./build.sh
           ./build.sh --family zuma -j"$(nproc)"
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: orangefox_build_zuma
+          path: |
+            ${{ github.workspace }}/fox_14.1/builds/*
+            ${{ github.workspace }}/fox_14.1/out/target/product/pixels/*.img
+            ${{ github.workspace }}/fox_14.1/out/target/product/pixels/*.zip
+          retention-days: 7
+
           
       - name: Debbug VS Code
         if: always() && inputs.debug
