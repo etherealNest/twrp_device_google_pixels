@@ -19,20 +19,13 @@ jobs:
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@v1.3.1
         with:
-          # Remove Android runtime
-          android: # optional, default is true
-          # Remove .NET runtime
-          dotnet: # optional, default is true
-          # Remove Haskell runtime
-          haskell: # optional, default is true
-          # Remove large packages
-          large-packages: # optional, default is true
-          # Remove Docker images
-          docker-images: # optional, default is true
-          # Remove image tool cache
-          tool-cache: # optional, default is false
-          # Remove swap storage
-          swap-storage: # optional, default is true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          tool-cache: false
+          swap-storage: true
 
       - name: Clone OrangeFox Source
         run: |
@@ -70,3 +63,5 @@ jobs:
       - name: Debbug VS Code
         if: always() && inputs.debug
         uses: fawazahmed0/action-debug-vscode@main
+
+
