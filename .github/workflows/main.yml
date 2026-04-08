@@ -33,15 +33,15 @@ jobs:
           tool-cache: false
           swap-storage: true
 
-      - name: Create Swap File
-        uses: actionhippie/swap-space@v1
-        with:
-          size: 32G
-
-#      - name: Set Swap Space
-#        uses: pierotofy/set-swap-space@master
+#      - name: Create Swap File
+#        uses: actionhippie/swap-space@v1
 #        with:
-#          swap-size-gb: 32
+#          size: 32G
+
+      - name: Set Swap Space
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 32
 
       - name: Install repo
         run: |
