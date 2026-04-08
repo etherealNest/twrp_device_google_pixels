@@ -31,12 +31,12 @@ jobs:
           large-packages: true
           docker-images: true
           tool-cache: false
-          swap-storage: false
+          swap-storage: true
 
-#      - name: Create Swap File
-#        uses: actionhippie/swap-space@v1
-#        with:
-#          size: 32G
+      - name: Create Swap File
+        uses: actionhippie/swap-space@v1
+        with:
+          size: 32G
 
 #      - name: Set Swap Space
 #        uses: pierotofy/set-swap-space@master
