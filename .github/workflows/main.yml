@@ -33,6 +33,11 @@ jobs:
           tool-cache: false
           swap-storage: true
 
+      - name: Set Swap Space
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 32
+
       - name: Install repo
         run: |
           mkdir -p "$HOME/bin"
@@ -71,7 +76,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/fox_14.1/device/google/pixels
           chmod +x ./build.sh
-          ./build.sh --family zuma -j"$(nproc)"
+          ./build.sh --family zuma -j1
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v7.0.0
