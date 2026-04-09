@@ -13,6 +13,10 @@ on:
         type: boolean
         description: Запустить очистку ВМ?
         default: true
+      try_zu_bauen:
+        type: boolean
+        description: Build?
+        default: false
 
 jobs:
   build:
@@ -73,17 +77,20 @@ jobs:
           retention-days: 3          
 
       - name: Checkout
+        if: inputs.try_zu_bauen
         uses: actions/checkout@v6.0.2
         with:
           path: fox_14.1/device/google/pixels
 
       - name: Build
+        if: inputs.try_zu_bauen
         run: |
           cd $GITHUB_WORKSPACE/fox_14.1/device/google/pixels
           chmod +x ./build.sh
           ./build.sh --family zuma -j1
 
       - name: Upload Build Artifact
+        if: inputs.try_zu_bauen
         uses: actions/upload-artifact@v7.0.0
         with:
           name: orangefox_build_zuma
@@ -93,7 +100,6 @@ jobs:
             ${{ github.workspace }}/fox_14.1/out/target/product/pixels/*.zip
           retention-days: 7
 
-          
       - name: Debbug VS Code
         if: always() && inputs.debug
         uses: fawazahmed0/action-debug-vscode@main
