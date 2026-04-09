@@ -61,6 +61,8 @@ jobs:
           git clone https://gitlab.com/OrangeFox/sync.git
           cd sync
           ./orangefox_sync.sh --branch 14.1 --path $GITHUB_WORKSPACE/fox_14.1
+          cd $GITHUB_WORKSPACE/fox14.1
+          repo sync -c -d --force-sync external/gflags external/guava
       
       - name: Подготовка Source as Artifact
         if: inputs.artifact_orangefox
@@ -99,6 +101,16 @@ jobs:
             ${{ github.workspace }}/fox_14.1/out/target/product/pixels/*.img
             ${{ github.workspace }}/fox_14.1/out/target/product/pixels/*.zip
           retention-days: 7
+
+      - name: Other Artifacts
+        if: inputs.try_zu_bauen
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: Artifacts
+          path: |
+            ${{ github.workspace }}/fox_14.1/external/gflags
+            ${{ github.workspace }}/fox_14.1/external/guava
+          retention-days: 1
 
       - name: Debbug VS Code
         if: always() && inputs.debug
