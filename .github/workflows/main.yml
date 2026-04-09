@@ -63,6 +63,8 @@ jobs:
           ./orangefox_sync.sh --branch 14.1 --path $GITHUB_WORKSPACE/fox_14.1
           cd $GITHUB_WORKSPACE/fox14.1
           repo sync -c -d --force-sync external/gflags external/guava
+          tar -cvf ../Artifact/gflags.tar external/gflags
+          tar -cvf ../Artifact/guava.tar external/guava
       
       - name: Подготовка Source as Artifact
         if: inputs.artifact_orangefox
@@ -108,8 +110,8 @@ jobs:
         with:
           name: Artifacts
           path: |
-            ${{ github.workspace }}/fox_14.1/external/gflags
-            ${{ github.workspace }}/fox_14.1/external/guava
+            ${{ github.workspace }}/Artifact/external/gflags
+            ${{ github.workspace }}/Artifact/external/guava
           retention-days: 1
 
       - name: Debbug VS Code
